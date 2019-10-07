@@ -20,11 +20,16 @@ function expressionCalculator(expr) {
             count++;
             continue;
         } else if (expr[i]==" ") {
-            count++
+            if (count > 0) {
+                arrayFirst.push (expr.slice(i-count,i));
+            }
+            count = 0;
             continue;
         } else {
             //console.log ("expr.slice(i-count,i): " + expr.slice(i-count,i) + ", i: " + i + ", count: " + count);
-            arrayFirst.push (expr.slice(i-count,i));
+            if (count > 0) {
+                arrayFirst.push (expr.slice(i-count,i));
+            }
             arrayFirst.push (expr[i]);
             count=0;
         }
@@ -33,9 +38,11 @@ function expressionCalculator(expr) {
         arrayFirst.push (expr.slice(expr.length - count, expr.length));
     }
 
-   // console.log ("Array out of expr: " + arrayFirst);
+   //console.log ("Array out of expr: " + arrayFirst);
     
     for (let i=0; i<arrayFirst.length; i++){
+       // console.log ("Array stack is: " + arrayStack);
+       // console.log ("Array expr is: " + arrayExpr);
         if (arrayFirst[i]>=0){
             arrayExpr.push(+arrayFirst[i]);
         }
@@ -43,22 +50,31 @@ function expressionCalculator(expr) {
             arrayStack.push (arrayFirst[i]);
         }
         if (arrayFirst[i]==")"){
-            let popStack=arrayStack.pop();
-            while (popStack!="("&& arrayStack.length!=0){
+            let popStack=arrayStack.pop();            
+
+            while (popStack != "(" && arrayStack.length != 0){
                 arrayExpr.push(popStack);
-                popStack=arrayStack.pop();
-                if(arrayStack.length==0&&popStack!="("){
-                   throw "ExpressionError: Brackets must be paired";
-                }
+                popStack = arrayStack.pop();   
             }
 
-        }
-        if (arrayFirst[i]=="+"||arrayFirst[i]=="-"){
-            if(arrayExpr[arrayExpr.length-1]>=0 && arrayExpr[arrayExpr.length-1]>=0){
-                if (arrayStack.length>0){ 
-                    arrayExpr.push(arrayStack.pop());
-                }
+            if(arrayStack.length == 0 && popStack != "("){
+                throw "ExpressionError: Brackets must be paired";
             }
+
+            
+        }
+        //while ( arrayStack[arrayStack.length-1]!="(" || arrayStack.length>0)
+
+
+        if (arrayFirst[i]=="+"||arrayFirst[i]=="-"){
+           // if(arrayExpr[arrayExpr.length-1]>=0 && arrayExpr[arrayExpr.length-1]>=0){
+            
+                    while (arrayStack.length>0 && arrayStack[arrayStack.length-1]!="("){
+                      arrayExpr.push(arrayStack.pop());  
+                    }
+                    // arrayExpr.push();
+                    
+            //}
             arrayStack.push (arrayFirst[i]); 
         }
         if (arrayFirst[i]=="*"||arrayFirst[i]=="/"){
@@ -93,8 +109,9 @@ function expressionCalculator(expr) {
     };
     //console.log ("Array stack is: " + arrayStack);
     //console.log ("Array expr is: " + arrayExpr);
-    for (let i=0;i<arrayStack.length;i++){
-       if (arrayStack[i]=="("){ throw "ExpressionError: Brackets must be paired";
+    for (let i=0;i<arrayStack.length;i++) {
+        if (arrayStack[i]=="(") {
+            throw "ExpressionError: Brackets must be paired";
         }
     }
     
@@ -102,7 +119,7 @@ function expressionCalculator(expr) {
     for (let i=0;i<b;i++){
         arrayExpr.push(arrayStack.pop())
     };
-    console.log ("Final Array Expr: "+ arrayExpr);
+   //console.log ("Final Array Expr: "+ arrayExpr);
     let result=0;
     
     for (let i=0; i< arrayExpr.length; i++){
@@ -147,7 +164,7 @@ function expressionCalculator(expr) {
    return notRounded;     
    
 }
-console.log (expressionCalculator( "1 + 2) * 3" ));
+//console.log (expressionCalculator(" 91 + 18 / (  42 + 62 + 84 * 95  ) + 30 " ));
 
 module.exports = {
     expressionCalculator
